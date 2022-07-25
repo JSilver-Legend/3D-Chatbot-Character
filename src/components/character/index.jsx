@@ -3,6 +3,23 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "react-three-fiber";
 import { AnimationMixer } from 'three';
 
+const aws_pose = {
+  'anger': 24,
+  'disgust': 25,
+  'fear': 26,
+  'happy': 27,
+  'neutral': 28,
+  'sad': 29,
+  'surprize': 30
+}
+
+const pose_animation = [
+  { "time": 700, "type": "ssml", "start": 11, "end": 31, "value": "happy" },
+  { "time": 5740, "type": "ssml", "start": 96, "end": 114, "value": "sad" },
+  { "time": 7407, "type": "ssml", "start": 137, "end": 156, "value": "fear" },
+  { "time": 10087, "type": "ssml", "start": 201, "end": 224, "value": "surprize" }
+]
+
 const aws_visemes = {
   'term1': 3,
   '@': 4,
@@ -33,37 +50,48 @@ const Character = ({ animation, startPlay }) => {
   const { scene, animations } = useGLTF("/assets/model/scene.glb");
   const group = useRef()
 
-  const actions = useRef()
-  const [mixer] = useState(() => new AnimationMixer());
+  const lypActions = useRef();
+  const poseActions = useRef();
+  const [lypMixer] = useState(() => new AnimationMixer());
+  const [poseMixer] = useState(() => new AnimationMixer());
 
   useEffect(() => {
-    if (mixer) {
-      actions.current = {
-        3: mixer.clipAction(animations[3], group.current),
-        4: mixer.clipAction(animations[4], group.current),
-        5: mixer.clipAction(animations[5], group.current),
-        6: mixer.clipAction(animations[6], group.current),
-        7: mixer.clipAction(animations[7], group.current),
-        8: mixer.clipAction(animations[8], group.current),
-        9: mixer.clipAction(animations[9], group.current),
-        10: mixer.clipAction(animations[10], group.current),
-        11: mixer.clipAction(animations[11], group.current),
-        12: mixer.clipAction(animations[12], group.current),
-        13: mixer.clipAction(animations[13], group.current),
-        14: mixer.clipAction(animations[14], group.current),
-        15: mixer.clipAction(animations[15], group.current),
-        16: mixer.clipAction(animations[16], group.current),
-        17: mixer.clipAction(animations[17], group.current),
-        18: mixer.clipAction(animations[18], group.current),
-        19: mixer.clipAction(animations[19], group.current),
-        20: mixer.clipAction(animations[20], group.current),
-        21: mixer.clipAction(animations[21], group.current),
-        22: mixer.clipAction(animations[22], group.current),
-        23: mixer.clipAction(animations[23], group.current),
-        28: mixer.clipAction(animations[28], group.current)
+    if (lypMixer && poseMixer) {
+      poseActions.current = {
+        24: poseMixer.clipAction(animations[24], group.current),
+        25: poseMixer.clipAction(animations[25], group.current),
+        26: poseMixer.clipAction(animations[26], group.current),
+        27: poseMixer.clipAction(animations[27], group.current),
+        28: poseMixer.clipAction(animations[28], group.current),
+        29: poseMixer.clipAction(animations[29], group.current),
+        30: poseMixer.clipAction(animations[30], group.current),
+      };
+      lypActions.current = {
+        3: lypMixer.clipAction(animations[3], group.current),
+        4: lypMixer.clipAction(animations[4], group.current),
+        5: lypMixer.clipAction(animations[5], group.current),
+        6: lypMixer.clipAction(animations[6], group.current),
+        7: lypMixer.clipAction(animations[7], group.current),
+        8: lypMixer.clipAction(animations[8], group.current),
+        9: lypMixer.clipAction(animations[9], group.current),
+        10: lypMixer.clipAction(animations[10], group.current),
+        11: lypMixer.clipAction(animations[11], group.current),
+        12: lypMixer.clipAction(animations[12], group.current),
+        13: lypMixer.clipAction(animations[13], group.current),
+        14: lypMixer.clipAction(animations[14], group.current),
+        15: lypMixer.clipAction(animations[15], group.current),
+        16: lypMixer.clipAction(animations[16], group.current),
+        17: lypMixer.clipAction(animations[17], group.current),
+        18: lypMixer.clipAction(animations[18], group.current),
+        19: lypMixer.clipAction(animations[19], group.current),
+        20: lypMixer.clipAction(animations[20], group.current),
+        21: lypMixer.clipAction(animations[21], group.current),
+        22: lypMixer.clipAction(animations[22], group.current),
+        23: lypMixer.clipAction(animations[23], group.current),
+        28: lypMixer.clipAction(animations[28], group.current)
       }
     }
-  }, [mixer, animations]);
+  }, [lypMixer, animations]);
 
   const [playLipsyncAnimation, setPlayLipsyncAnimation] = useState(false);
 
@@ -72,13 +100,25 @@ const Character = ({ animation, startPlay }) => {
   }, [startPlay]);
 
   useEffect(() => {
-    if (playLipsyncAnimation) playLipsync();
+    if (playLipsyncAnimation) {
+      // playLipsync();
+      playPose();
+    }
   }, [playLipsyncAnimation]);
 
   const stopAction = (value, time) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        actions.current[value].stop();
+        lypActions.current[value].stop();
+        resolve(true);
+      }, time);
+    });
+  }
+
+  const stopPoseAction = (value, time) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        poseActions.current[value].stop();
         resolve(true);
       }, time);
     });
@@ -92,25 +132,46 @@ const Character = ({ animation, startPlay }) => {
     });
   }
   const [playSpeed, setPlaySpeed] = useState(0);
+  const [posePlaySpeed, setPosePlaySpeed] = useState(0);
   const playLipsync = async () => {
     var endPoint = 0;
     for (let i = 0; i < animation.length; i++) {
       const element = animation[i];
-      if (i === 0) await term(element.time);
-      else {
-        const playTime = element.time - endPoint;
-        const defaultTime = animations[aws_visemes[element.value]].duration * 1000;
-        setPlaySpeed(defaultTime / playTime);
-        actions.current[aws_visemes[element.value]].play();
-        await stopAction(aws_visemes[element.value], playTime);
+      if (element.type === "viseme") {
+        if (i === 0) await term(element.time);
+        else {
+          const playTime = element.time - endPoint;
+          const defaultTime = animations[aws_visemes[element.value]].duration * 1000;
+          setPlaySpeed(defaultTime / playTime);
+          lypActions.current[aws_visemes[element.value]].play();
+          await stopAction(aws_visemes[element.value], playTime);
+        }
+        endPoint = element.time;
       }
-      endPoint = element.time;
     };
     setPlayLipsyncAnimation(false);
   }
 
+  const playPose = async () => {
+    var endPoint = 0;
+    for (let i = 0; i < pose_animation.length; i++) {
+      const element = pose_animation[i];
+      if (i === 0) await term(element.time);
+      else {
+        const playTime = element.time - endPoint;
+        const defaultTime = animations[aws_pose[element.value]].duration * 1000;
+        setPosePlaySpeed(defaultTime / playTime);
+        console.log(aws_pose[element.value]);
+        poseActions.current[aws_pose[element.value]].play();
+        await stopPoseAction(aws_pose[element.value], playTime);
+      }
+      endPoint = element.time;
+    }
+  }
+
   useFrame((state, delta) => {
-    mixer.update(delta * playSpeed);
+    lypMixer.update(delta * playSpeed);
+    poseMixer.update(delta * posePlaySpeed);
   })
 
   return (

@@ -105,11 +105,11 @@ const AvatarModel = ({ audioPlay }) => {
     <>
       <Canvas className='canvas' >
         <OrbitControls
-          target={[0, 0, 0]}
+          target={[0, -0.01, 0]}
           enableDamping={true}
           enableRotate={false}
-          minDistance={0.6}
-          maxDistance={0.6}
+          minDistance={0.45}
+          maxDistance={0.45}
         />
         <Suspense fallback={loading()}>
           <Character animation={viesemData} startPlay={startPlay} />

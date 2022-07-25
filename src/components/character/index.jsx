@@ -39,28 +39,28 @@ const Character = ({ animation, startPlay }) => {
   useEffect(() => {
     if (mixer) {
       actions.current = {
-        'term1': mixer.clipAction(animations[3], group.current),
-        '@': mixer.clipAction(animations[4], group.current),
-        'O': mixer.clipAction(animations[5], group.current),
-        'a': mixer.clipAction(animations[6], group.current),
-        'term2': mixer.clipAction(animations[7], group.current),
-        't': mixer.clipAction(animations[8], group.current),
-        'E': mixer.clipAction(animations[9], group.current),
-        'e': mixer.clipAction(animations[10], group.current),
-        'f': mixer.clipAction(animations[11], group.current),
-        'term4': mixer.clipAction(animations[12], group.current),
-        'k': mixer.clipAction(animations[13], group.current),
-        'dance': mixer.clipAction(animations[14], group.current),
-        'o': mixer.clipAction(animations[15], group.current),
-        'term3': mixer.clipAction(animations[16], group.current),
-        'p': mixer.clipAction(animations[17], group.current),
-        'r': mixer.clipAction(animations[18], group.current),
-        's': mixer.clipAction(animations[19], group.current),
-        'S': mixer.clipAction(animations[20], group.current),
-        'T': mixer.clipAction(animations[21], group.current),
-        'u': mixer.clipAction(animations[22], group.current),
-        'i': mixer.clipAction(animations[23], group.current),
-        'sil': mixer.clipAction(animations[28], group.current)
+        3: mixer.clipAction(animations[3], group.current),
+        4: mixer.clipAction(animations[4], group.current),
+        5: mixer.clipAction(animations[5], group.current),
+        6: mixer.clipAction(animations[6], group.current),
+        7: mixer.clipAction(animations[7], group.current),
+        8: mixer.clipAction(animations[8], group.current),
+        9: mixer.clipAction(animations[9], group.current),
+        10: mixer.clipAction(animations[10], group.current),
+        11: mixer.clipAction(animations[11], group.current),
+        12: mixer.clipAction(animations[12], group.current),
+        13: mixer.clipAction(animations[13], group.current),
+        14: mixer.clipAction(animations[14], group.current),
+        15: mixer.clipAction(animations[15], group.current),
+        16: mixer.clipAction(animations[16], group.current),
+        17: mixer.clipAction(animations[17], group.current),
+        18: mixer.clipAction(animations[18], group.current),
+        19: mixer.clipAction(animations[19], group.current),
+        20: mixer.clipAction(animations[20], group.current),
+        21: mixer.clipAction(animations[21], group.current),
+        22: mixer.clipAction(animations[22], group.current),
+        23: mixer.clipAction(animations[23], group.current),
+        28: mixer.clipAction(animations[28], group.current)
       }
     }
   }, [mixer, animations]);
@@ -101,8 +101,8 @@ const Character = ({ animation, startPlay }) => {
         const playTime = element.time - endPoint;
         const defaultTime = animations[aws_visemes[element.value]].duration * 1000;
         setPlaySpeed(defaultTime / playTime);
-        actions.current[element.value].play();
-        await stopAction(element.value, playTime);
+        actions.current[aws_visemes[element.value]].play();
+        await stopAction(aws_visemes[element.value], playTime);
       }
       endPoint = element.time;
     };
@@ -114,10 +114,9 @@ const Character = ({ animation, startPlay }) => {
   })
 
   return (
-    <primitive ref={group} object={scene} position={[0, -1.6, 0]} >
-      <ambientLight intensity={2} />
-      {/* <directionalLight intensity={1} /> */}
-      <pointLight position={[5, 5, 5]} />
+    <primitive ref={group} object={scene} position={[0, -2.06, 0]} scale={[1.2, 1.2, 1.2]} >
+      <ambientLight intensity={3} />
+      <pointLight intensity={1.4} position={[0, 5, 10]} />
       <mesh />
     </primitive>
   )

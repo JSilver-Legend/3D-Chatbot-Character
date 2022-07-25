@@ -13,7 +13,7 @@ export default function App() {
       </div>
       <div className='button-field'>
         <div className='button' onClick={() => {
-          setAudioPlay(true);
+          setAudioPlay(!audioPlay);
         }} >
           START
         </div>

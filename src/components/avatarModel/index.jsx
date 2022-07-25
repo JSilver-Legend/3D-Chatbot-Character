@@ -76,18 +76,20 @@ const viesemData = [
 const AvatarModel = ({ audioPlay }) => {
 
   const audio = new Audio('/assets/audio/speech.mp3');
-  const [playAnimation, setPlayAnimation] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [startPlay, setStartPlay] = useState(false);
 
   useEffect(() => {
-    if (audioPlay) {
+    if (audioPlay && !isAudioPlaying) {
+      setIsAudioPlaying(true);
       audio.play();
-      setPlayAnimation(true);
-    }
-    else {
-      audio.pause();
-      audio.currentTime = 0;
+      setStartPlay(true);
     }
   }, [audioPlay]);
+
+  audio.onended = function () {
+    setIsAudioPlaying(false);
+  }
 
   const loading = () => {
     return (
@@ -110,7 +112,7 @@ const AvatarModel = ({ audioPlay }) => {
           maxDistance={0.6}
         />
         <Suspense fallback={loading()}>
-          <Character animation={viesemData} startPlay={playAnimation} />
+          <Character animation={viesemData} startPlay={startPlay} />
         </Suspense>
       </Canvas>
     </>

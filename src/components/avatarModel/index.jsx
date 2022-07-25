@@ -73,7 +73,7 @@ const viesemData = [
   { "time": 6062, "type": "viseme", "value": "sil" }
 ]
 
-const AvatarModel = ({ audioPlay }) => {
+const AvatarModel = ({ audioPlay, setEndState }) => {
 
   const audio = new Audio('/assets/audio/speech.mp3');
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -89,6 +89,8 @@ const AvatarModel = ({ audioPlay }) => {
 
   audio.onended = function () {
     setIsAudioPlaying(false);
+    setStartPlay(false);
+    setEndState();
   }
 
   const loading = () => {

@@ -13,13 +13,6 @@ const aws_pose = {
   'surprize': 30
 }
 
-const pose_animation = [
-  { "time": 700, "type": "ssml", "start": 11, "end": 31, "value": "happy" },
-  { "time": 5740, "type": "ssml", "start": 96, "end": 114, "value": "sad" },
-  { "time": 7407, "type": "ssml", "start": 137, "end": 156, "value": "fear" },
-  { "time": 10087, "type": "ssml", "start": 201, "end": 224, "value": "surprize" }
-]
-
 const aws_visemes = {
   'term1': 3,
   '@': 4,
@@ -44,6 +37,8 @@ const aws_visemes = {
   'i': 23,
   'sil': 28
 }
+
+const FACE_TIME = 500;
 
 const Character = ({ animation, startPlay }) => {
 
@@ -101,8 +96,7 @@ const Character = ({ animation, startPlay }) => {
 
   useEffect(() => {
     if (playLipsyncAnimation) {
-      // playLipsync();
-      playPose();
+      playLipsync();
     }
   }, [playLipsyncAnimation]);
 
@@ -147,32 +141,21 @@ const Character = ({ animation, startPlay }) => {
           await stopAction(aws_visemes[element.value], playTime);
         }
         endPoint = element.time;
+      } else if (element.type === "ssml") {
+        const playTime = element.time - endPoint;
+        const defaultTime = animations[aws_pose[element.value]].duration * 1000;
+        setPosePlaySpeed(defaultTime / 1500);
+        poseActions.current[aws_pose[element.value]].play();
+        stopPoseAction(aws_pose[element.value], FACE_TIME);
       }
     };
     setPlayLipsyncAnimation(false);
   }
 
-  const playPose = async () => {
-    var endPoint = 0;
-    for (let i = 0; i < pose_animation.length; i++) {
-      const element = pose_animation[i];
-      if (i === 0) await term(element.time);
-      else {
-        const playTime = element.time - endPoint;
-        const defaultTime = animations[aws_pose[element.value]].duration * 1000;
-        setPosePlaySpeed(defaultTime / playTime);
-        console.log(aws_pose[element.value]);
-        poseActions.current[aws_pose[element.value]].play();
-        await stopPoseAction(aws_pose[element.value], playTime);
-      }
-      endPoint = element.time;
-    }
-  }
-
   useFrame((state, delta) => {
     lypMixer.update(delta * playSpeed);
     poseMixer.update(delta * posePlaySpeed);
-  })
+  });
 
   return (
     <primitive ref={group} object={scene} position={[0, -2.06, 0]} scale={[1.2, 1.2, 1.2]} >
